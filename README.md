@@ -34,3 +34,18 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+## Plan
+
+This repo is for two tools I will be building with Next.js, Tailwind CSS and Typescript.
+
+1. Resistance calculator
+2. Savings calculator
+
+The goal is to practice the technologies to be able to do a full-stack app, Piggy, that will help me land a developer job.
+
+I will be practising writing blogs and post on both Hashnode and LinkedIn.
+
+I am determined to make some money online through coding or writing about coding beginning this April.
+
