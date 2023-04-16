@@ -44,27 +44,63 @@ function ColorRow({ bands, color, value, tolerance, onClick }: ColorCodeProps) {
   )
 }
 
-function ColorCodesMap({ onClick }: {onClick: React.MouseEventHandler<HTMLButtonElement>}) {
+interface ColorCodesMapProps {
+  bands: number,
+  onClick: React.MouseEventHandler<HTMLButtonElement>,
+  onChange: React.ChangeEventHandler<HTMLInputElement>
+}
+
+function ColorCodesMap({ bands, onClick, onChange }: ColorCodesMapProps) {
   const colorCodesMap = colorCodes.map(color => {
-    return <ColorRow bands={3} key={color.color} {...color} onClick={onClick} />
+    return <ColorRow bands={bands} key={color.color} {...color} onClick={onClick} />
   })
   return (
     <>
+      <p>Select the number of Bands</p>
+      <span>4</span><input type="checkbox" name="bands" onChange={onChange}/><span>5</span>
       {colorCodesMap}
     </>
   )
 }
 
 interface Resistance {
-  firstDigit: number | null,
-  secondDigit: number | null,
-  thirdDigit: number | null,
-  multiplier: number | null,
-  tolerance: number | null
-  bands?: number
+  firstDigit: string,
+  secondDigit: string,
+  thirdDigit: string,
+  multiplier: string,
+  tolerance: string,
+  bands?: number,
+  units: string,
+  onChange: React.ChangeEventHandler<HTMLSelectElement>
 }
 
-function OutputRow({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance, bands }: Resistance) {
+function OutputRow({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance, bands, units, onChange }: Resistance) {
+  const digits = firstDigit + secondDigit + thirdDigit
+  const totalResistance = Number(digits) * 10**Number(multiplier)
+
+  // convert total resistance to required units
+  let convertedResistance = totalResistance
+  if (units == 'milli') {
+    convertedResistance = totalResistance * 1000
+  }
+  else if (units == 'kilo') {
+    convertedResistance = totalResistance * 0.001
+  }
+  else if (units == 'mega') {
+    convertedResistance = totalResistance * 0.000001
+  }
+
+  // tolerance implies the actual resistance is higher or lower than the calculated value by that percentage
+  const range = convertedResistance * Number(tolerance) * 0.01
+
+  // show appropriate units
+  const unit = {
+    default: '',
+    milli: 'm',
+    kilo: 'k',
+    mega: 'M'
+  }[units]
+
   return (
     <div>
       {[...Array(bands)].map((_, i) => {
@@ -72,39 +108,57 @@ function OutputRow({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance,
       })}
       {multiplier && <span> &times; 10<sup>{multiplier}</sup></span>}
       {tolerance && <span>&plusmn;{tolerance}%</span>}
-      <span>Resistance</span>
-      <label>Select the unit to display the resistance</label>
-      <select name="resistance" defaultValue="default">
-        <option value="milli">m&#8486;</option>
-        <option value="default">&#8486;</option>
-        <option value="kilo">k&#8486;</option>
-        <option value="mega">M&#8486;</option>
-      </select>
+      <div>
+        <span>Resistance: {totalResistance}&plusmn;{tolerance}%</span>
+        <label>Pick a unit</label>
+        <select name="resistance" defaultValue="default" onChange={onChange}>
+          <option value="milli">m&#8486;</option>
+          <option value="default">&#8486;</option>
+          <option value="kilo">k&#8486;</option>
+          <option value="mega">M&#8486;</option>
+        </select>
+      </div>
+      <span>Resistance: {convertedResistance - range} to {convertedResistance + range} {unit}&#8486;</span>
     </div>
   )
 }
 
 export default function Resistance() {
   const initialResistance = {
-    firstDigit: null,
-    secondDigit: null,
-    thirdDigit: null,
-    multiplier: null,
-    tolerance: null
+    firstDigit: '',
+    secondDigit: '',
+    thirdDigit: '',
+    multiplier: '',
+    tolerance: ''
   }
-  const [resistance, setResistance] = useState({...initialResistance})
 
-  function handleClick(e: React.MouseEvent<HTMLButtonElement>) {
+  const [resistance, setResistance] = useState({...initialResistance})
+  const [units, setUnits] = useState('default')
+  const [bands, setBands] = useState(4)
+
+  function handleColorButtonClick(e: React.MouseEvent<HTMLButtonElement>) {
     // clears the error: Property 'name' does not exist on type 'EventTarget'.
     const target = e.target as HTMLButtonElement
     setResistance({ ...resistance, [target.name]: target.value })
   }
 
+  function handleUnitsChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const target = e.target as HTMLSelectElement
+    setUnits(target.value)
+  }
+
+  function handleBandsChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // reset resistance if number of bands changes
+    setResistance({...initialResistance})
+    setBands(e.target.checked ? 5 : 4)
+  }
+
   return (
     <div>
       <p>Testing the Resistance calculator page!</p>
-      <ColorCodesMap onClick={handleClick} />
-      <OutputRow bands={3} {...resistance} />
+      <button onClick={() => setResistance({...initialResistance})}>CLEAR</button>
+      <ColorCodesMap bands={bands-2} onClick={handleColorButtonClick} onChange={handleBandsChange} />
+      <OutputRow bands={bands-2} units={units} {...resistance} onChange={handleUnitsChange} />
     </div>
   )
 }
