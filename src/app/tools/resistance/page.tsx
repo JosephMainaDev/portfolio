@@ -71,10 +71,11 @@ interface Resistance {
   tolerance: string,
   bands?: number,
   units: string,
-  onChange: React.ChangeEventHandler<HTMLSelectElement>
+  onChange?: React.ChangeEventHandler<HTMLSelectElement>
 }
 
-function OutputRow({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance, bands, units, onChange }: Resistance) {
+// helper function to calculate the resistance range and give the correct units
+function calculateResistance({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance, units }: Resistance) {
   const digits = firstDigit + secondDigit + thirdDigit
   const totalResistance = Number(digits) * 10**Number(multiplier)
 
@@ -104,6 +105,13 @@ function OutputRow({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance,
     kilo: 'k',
     mega: 'M'
   }[units]
+  
+  return [totalResistance, min, max, unit]
+}
+
+function OutputRow({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance, bands, units, onChange }: Resistance) {
+  // get resistance range and SI unit
+  const [totalR, min, max, unit] = calculateResistance({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance, units })
 
   return (
     <div>
@@ -113,7 +121,7 @@ function OutputRow({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance,
       {multiplier && <span> &times; 10<sup>{multiplier}</sup></span>}
       {tolerance && <span>&plusmn;{tolerance}%</span>}
       <div>
-        <span>Resistance: {totalResistance}&plusmn;{tolerance}%</span>
+        <span>Resistance: {totalR} &plusmn;{tolerance}%</span>
         <label>Pick a unit</label>
         <select name="resistance" defaultValue="default" onChange={onChange}>
           <option value="milli">m&#8486;</option>
