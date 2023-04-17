@@ -78,20 +78,24 @@ function OutputRow({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance,
   const digits = firstDigit + secondDigit + thirdDigit
   const totalResistance = Number(digits) * 10**Number(multiplier)
 
+  // tolerance implies the actual resistance is higher or lower than the calculated value by that percentage
+  let range = totalResistance * Number(tolerance) / 100
+  let min = totalResistance - range
+  let max = totalResistance + range
+
   // convert total resistance to required units
-  let convertedResistance = totalResistance
   if (units == 'milli') {
-    convertedResistance = totalResistance * 1000
+    min = min * 1000
+    max = max * 1000
   }
   else if (units == 'kilo') {
-    convertedResistance = totalResistance * 0.001
+    min = min / 1000
+    max = max / 1000
   }
   else if (units == 'mega') {
-    convertedResistance = totalResistance * 0.000001
+    min = min / 1000000
+    max = max / 1000000
   }
-
-  // tolerance implies the actual resistance is higher or lower than the calculated value by that percentage
-  const range = convertedResistance * Number(tolerance) * 0.01
 
   // show appropriate units
   const unit = {
@@ -118,7 +122,7 @@ function OutputRow({ firstDigit, secondDigit, thirdDigit, multiplier, tolerance,
           <option value="mega">M&#8486;</option>
         </select>
       </div>
-      <span>Resistance: {convertedResistance - range} to {convertedResistance + range} {unit}&#8486;</span>
+      <span>Resistance: {min} to {max} {unit}&#8486;</span>
     </div>
   )
 }
