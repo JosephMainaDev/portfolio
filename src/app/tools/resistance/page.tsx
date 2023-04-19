@@ -172,21 +172,23 @@ function calculateResistance({
   }
 
   // show appropriate units
-  const unit = {
-    default: "",
-    milli: "m",
-    kilo: "k",
-    mega: "M",
-  }[units];
+  const unit = units
+    ? {
+        default: "",
+        milli: "m",
+        kilo: "k",
+        mega: "M",
+      }[units]
+    : "";
 
   return [totalResistance, min, max, unit];
 }
 
 function getColor(value: string) {
   for (const item of colorCodes) {
-    console.log(item)
+    console.log(item);
     if (Object.values(item).includes(Number(value))) {
-      return bgColor(item.color)
+      return bgColor(item.color);
     }
   }
 }
@@ -214,22 +216,61 @@ function OutputRow({
   return (
     <div className="">
       <div
-        className={`my-3 grid gap-4 border-t border-t-gray-300 p-3 ${bands && bandsGrid[bands]}`}
+        className={`my-3 grid gap-4 border-t border-t-gray-300 p-3 ${
+          bands && bandsGrid[bands]
+        }`}
       >
-        <span>{''}</span>
-        {firstDigit ? <span className={`${getColor(firstDigit)} text-center`}>{firstDigit}</span> : <span>{''}</span>}
-        {secondDigit ? <span className={`${getColor(secondDigit)} text-center`}>{secondDigit}</span> : <span>{''}</span>}
-        {thirdDigit ? <span className={`${getColor(thirdDigit)} text-center`}>{thirdDigit}</span> : bands != 3 ? '' : <span>{''}</span>}
-        {multiplier ? <span className={`${getColor(multiplier)} text-center`}>&times;10<sup>{multiplier}</sup></span> : <span>{''}</span>}
-        {tolerance ? <span className={`${getColor(tolerance)} text-center`}>&plusmn;{tolerance}%</span> : <span>{''}</span>}
+        <span>{""}</span>
+        {firstDigit ? (
+          <span className={`${getColor(firstDigit)} text-center`}>
+            {firstDigit}
+          </span>
+        ) : (
+          <span>{""}</span>
+        )}
+        {secondDigit ? (
+          <span className={`${getColor(secondDigit)} text-center`}>
+            {secondDigit}
+          </span>
+        ) : (
+          <span>{""}</span>
+        )}
+        {thirdDigit ? (
+          <span className={`${getColor(thirdDigit)} text-center`}>
+            {thirdDigit}
+          </span>
+        ) : bands != 3 ? (
+          ""
+        ) : (
+          <span>{""}</span>
+        )}
+        {multiplier ? (
+          <span className={`${getColor(multiplier)} text-center`}>
+            &times;10<sup>{multiplier}</sup>
+          </span>
+        ) : (
+          <span>{""}</span>
+        )}
+        {tolerance ? (
+          <span className={`${getColor(tolerance)} text-center`}>
+            &plusmn;{tolerance}%
+          </span>
+        ) : (
+          <span>{""}</span>
+        )}
       </div>
-      <div className="flex items-center w-full">
+      <div className="flex w-full items-center">
         <span className="w-1/5">Total </span>
-        <div className="flex justify-end border items-center border-gray-300 rounded w-4/5">
+        <div className="flex w-4/5 items-center justify-end rounded border border-gray-300">
           <span className="">
             {totalR} {tolerance && <>&plusmn; {tolerance}%</>}
           </span>
-          <select name="resistance" defaultValue="default" onChange={onChange} className="ml-5 py-2">
+          <select
+            name="resistance"
+            defaultValue="default"
+            onChange={onChange}
+            className="ml-5 py-2"
+          >
             <option value="milli">m&#8486;</option>
             <option value="default">&#8486;</option>
             <option value="kilo">k&#8486;</option>
@@ -237,12 +278,14 @@ function OutputRow({
           </select>
         </div>
       </div>
-      <div className="flex align-center w-full mt-5">
-        <span className="mr-4 p-1 w-1/5">Range </span>
-        <div className="flex justify-between w-4/5">
+      <div className="align-center mt-5 flex w-full">
+        <span className="mr-4 w-1/5 p-1">Range </span>
+        <div className="flex w-4/5 justify-between">
           <span>{min}</span>
           <span>to</span>
-          <span>{max} {unit}&#8486;</span>
+          <span>
+            {max} {unit}&#8486;
+          </span>
         </div>
       </div>
     </div>
@@ -280,34 +323,41 @@ export default function Resistance() {
   }
 
   return (
-    <div className="m-auto max-w-md h-screen">
+    <div className="m-auto min-h-screen max-w-md">
       <h2 className="flex flex-row justify-center border-b border-b-gray-300 text-3xl/loose font-medium">
         Resistance calculator
       </h2>
-      <div className="flex gap-1 mb-10">
-        <hr className="border-8 border-red-600 w-1/3 hover:w-3/4" />
-        <hr className="border-8 border-green-500 w-1/3 hover:w-3/4" />
-        <hr className="border-8 border-blue-500 w-1/3 hover:w-3/4" />
+      <div className="mb-10 flex gap-1">
+        <hr className="w-1/3 border-8 border-red-600 hover:w-3/4" />
+        <hr className="w-1/3 border-8 border-green-500 hover:w-3/4" />
+        <hr className="w-1/3 border-8 border-blue-500 hover:w-3/4" />
       </div>
-      <div className="flex flex-row justify-around mb-10">
+      <div className="mb-10 flex flex-row justify-around">
         <div className="flex flex-row justify-between">
           <span className="mx-5">Bands</span>
-          <button className="h-8 w-8 rounded-full bg-red-500" disabled>4</button>
-          <div className="relative flex flex-row content-center w-24 h-8 mx-3 shadow-inner">
+          <button className="h-8 w-8 rounded-full bg-red-500" disabled>
+            4
+          </button>
+          <div className="relative mx-3 flex h-8 w-24 flex-row content-center shadow-inner">
             <input
               id="toggle"
               type="checkbox"
               name="bands"
               onChange={handleBandsChange}
-              className="hidden peer"
+              className="peer hidden"
             />
-            <label htmlFor="toggle" className="absolute cursor-pointer h-full w-full transition duration-500 bg-red-500 rounded-full shadow before:absolute before:h-8 before:w-8 before:rounded-full before:bg-white before:transition before:duration-500 peer-checked:bg-blue-400 peer-checked:before:translate-x-16"></label>
+            <label
+              htmlFor="toggle"
+              className="absolute h-full w-full cursor-pointer rounded-full bg-red-500 shadow transition duration-500 before:absolute before:h-8 before:w-8 before:rounded-full before:bg-white before:transition before:duration-500 peer-checked:bg-blue-400 peer-checked:before:translate-x-16"
+            ></label>
           </div>
-          <button className="h-8 w-8 rounded-full bg-blue-400" disabled>5</button>
+          <button className="h-8 w-8 rounded-full bg-blue-400" disabled>
+            5
+          </button>
         </div>
         <button
           onClick={() => setResistance({ ...initialResistance })}
-          className="rounded bg-red-600 hover:bg-red-500 focus:outline-none focus:ring focus:ring-red-300 active:bg-red-500 px-2"
+          className="rounded bg-red-600 px-2 hover:bg-red-500 focus:outline-none focus:ring focus:ring-red-300 active:bg-red-500"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -337,5 +387,3 @@ export default function Resistance() {
     </div>
   );
 }
-
-
