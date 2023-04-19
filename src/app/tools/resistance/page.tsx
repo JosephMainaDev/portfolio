@@ -38,7 +38,7 @@ function bgColor(color: string) {
       "bg-orange-900 hover:bg-orange-800 active:bg-orange-800 focus:outline-none focus:ring focus:ring-orange-300 text-white p-1",
     red: "bg-red-600 hover:bg-red-500 active:bg-red-500 focus:outline-none focus:ring focus:ring-red-300 text-white p-1",
     orange:
-      "bg-orange-400 hover:bg-orange-600 active:bg-orange-600 focus:outline-none focus:ring focus:ring-orange-300 text-white p-1",
+      "bg-orange-500 hover:bg-orange-600 active:bg-orange-600 focus:outline-none focus:ring focus:ring-orange-300 text-white p-1",
     yellow:
       "bg-amber-300 hover:bg-amber-500 active:bg-amber-500 focus:outline-none focus:ring focus:ring-amber-500 text-gray-500 p-1",
     green:
@@ -46,11 +46,11 @@ function bgColor(color: string) {
     blue: "bg-blue-500 hover:bg-blue-700 active:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 text-white p-1",
     violet:
       "bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300 text-white p-1",
-    gray: "bg-gray-300 hover:bg-gray-500 active:bg-gray-500 focus:outline-none focus:ring focus:ring-gray-500 text-gray-500 hover:text-white p-1",
+    gray: "bg-gray-300 hover:bg-gray-500 active:bg-gray-500 focus:outline-none focus:ring focus:ring-gray-500 text-gray-700 hover:text-white p-1",
     white:
-      "bg-white hover:bg-gray-200 active:bg-gray-200 focus:outline-none focus:ring focus:ring-gray-300 text-gray-500 p-1",
+      "bg-white hover:bg-gray-200 active:bg-gray-200 focus:outline-none focus:ring focus:ring-gray-300 text-gray-700 p-1",
     silver:
-      "bg-slate-300 hover:bg-slate-400 active:bg-slate-400 focus:outline-none focus:ring focus:ring-slate-200 text-gray-500 p-1",
+      "bg-slate-400 hover:bg-slate-500 active:bg-slate-500 focus:outline-none focus:ring focus:ring-slate-300 text-gray-700 p-1",
     gold: "bg-yellow-600 hover:bg-amber-600 active:bg-amber-600 focus:outline-none focus:ring focus:ring-amber-300 text-white p-1",
     none: "hover:bg-gray-200 active:bg-gray-200 focus:outline-none focus:ring focus:ring-gray-300 p-1",
   };
@@ -64,7 +64,7 @@ const bandsGrid: { [key: number]: string } = {
 
 function ColorRow({ bands, color, value, tolerance, onClick }: ColorCodeProps) {
   return (
-    <div className={`m-3 grid gap-4 ${bandsGrid[bands]}`}>
+    <div className={`my-3 grid gap-4 ${bandsGrid[bands]}`}>
       <span className="capitalize">{color}</span>
       {[...Array(bands)].map((_, i) => {
         if (value === null)
@@ -138,7 +138,7 @@ interface Resistance {
   multiplier: string;
   tolerance: string;
   bands?: number;
-  units: string;
+  units?: string;
   onChange?: React.ChangeEventHandler<HTMLSelectElement>;
 }
 
@@ -182,6 +182,15 @@ function calculateResistance({
   return [totalResistance, min, max, unit];
 }
 
+function getColor(value: string) {
+  for (const item of colorCodes) {
+    console.log(item)
+    if (Object.values(item).includes(Number(value))) {
+      return bgColor(item.color)
+    }
+  }
+}
+
 function OutputRow({
   firstDigit,
   secondDigit,
@@ -205,45 +214,37 @@ function OutputRow({
   return (
     <div className="">
       <div
-        className={`m-3 grid gap-4 border-t border-t-gray-300 p-1 ${bandsGrid[bands]}`}
+        className={`my-3 grid gap-4 border-t border-t-gray-300 p-3 ${bands && bandsGrid[bands]}`}
       >
-        <span>INPUT</span>
-        <span className="text-center">I</span>
-        <span>P</span>
-        <span>N</span>
-        <span>U</span>
+        <span>{''}</span>
+        {firstDigit ? <span className={`${getColor(firstDigit)} text-center`}>{firstDigit}</span> : <span>{''}</span>}
+        {secondDigit ? <span className={`${getColor(secondDigit)} text-center`}>{secondDigit}</span> : <span>{''}</span>}
+        {thirdDigit ? <span className={`${getColor(thirdDigit)} text-center`}>{thirdDigit}</span> : bands != 3 ? '' : <span>{''}</span>}
+        {multiplier ? <span className={`${getColor(multiplier)} text-center`}>&times;10<sup>{multiplier}</sup></span> : <span>{''}</span>}
+        {tolerance ? <span className={`${getColor(tolerance)} text-center`}>&plusmn;{tolerance}%</span> : <span>{''}</span>}
       </div>
-      <div
-        className={`m-3 grid gap-4 border-t border-t-gray-300 p-1 ${bandsGrid[bands]}`}
-      >
-        <span>TOTAL</span>
-        {[...Array(bands)].map((_, i) => {
-          return (
-            <span className="text-center" key={i}>{[firstDigit, secondDigit, thirdDigit][i]}</span>
-          );
-        })}
-        {multiplier && (
-          <span className="text-center">
-            {" "}
-            &times; 10<sup>{multiplier}</sup>
+      <div className="flex items-center w-full">
+        <span className="w-1/5">Total </span>
+        <div className="flex justify-end border items-center border-gray-300 rounded w-4/5">
+          <span className="">
+            {totalR} {tolerance && <>&plusmn; {tolerance}%</>}
           </span>
-        )}
-        {tolerance && <span className="text-center">&plusmn;{tolerance}%</span>}
+          <select name="resistance" defaultValue="default" onChange={onChange} className="ml-5 py-2">
+            <option value="milli">m&#8486;</option>
+            <option value="default">&#8486;</option>
+            <option value="kilo">k&#8486;</option>
+            <option value="mega">M&#8486;</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <span>
-          Resistance: {totalR} &plusmn;{tolerance}%
-        </span>
-        <select name="resistance" defaultValue="default" onChange={onChange}>
-          <option value="milli">m&#8486;</option>
-          <option value="default">&#8486;</option>
-          <option value="kilo">k&#8486;</option>
-          <option value="mega">M&#8486;</option>
-        </select>
+      <div className="flex align-center w-full mt-5">
+        <span className="mr-4 p-1 w-1/5">Range </span>
+        <div className="flex justify-between w-4/5">
+          <span>{min}</span>
+          <span>to</span>
+          <span>{max} {unit}&#8486;</span>
+        </div>
       </div>
-      <span>
-        Resistance: {min} to {max} {unit}&#8486;
-      </span>
     </div>
   );
 }
@@ -279,15 +280,19 @@ export default function Resistance() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
+    <div className="m-auto max-w-md h-screen">
       <h2 className="flex flex-row justify-center border-b border-b-gray-300 text-3xl/loose font-medium">
         Resistance calculator
       </h2>
-      <div className="my-5 flex flex-row justify-around pt-2">
-        <span></span>
+      <div className="flex gap-1 mb-10">
+        <hr className="border-8 border-red-600 w-1/3 hover:w-3/4" />
+        <hr className="border-8 border-green-500 w-1/3 hover:w-3/4" />
+        <hr className="border-8 border-blue-500 w-1/3 hover:w-3/4" />
+      </div>
+      <div className="flex flex-row justify-around mb-10">
         <div className="flex flex-row justify-between">
           <span className="mx-5">Bands</span>
-          <button className="h-8 w-8 rounded-full bg-pink-400" disabled>4</button>
+          <button className="h-8 w-8 rounded-full bg-red-500" disabled>4</button>
           <div className="relative flex flex-row content-center w-24 h-8 mx-3 shadow-inner">
             <input
               id="toggle"
@@ -296,13 +301,13 @@ export default function Resistance() {
               onChange={handleBandsChange}
               className="hidden peer"
             />
-            <label htmlFor="toggle" className="absolute cursor-pointer h-full w-full transition duration-500 bg-pink-400 rounded-full shadow before:absolute before:h-8 before:w-8 before:rounded-full before:bg-white before:transition before:duration-500 peer-checked:bg-lime-400 peer-checked:before:translate-x-16"></label>
+            <label htmlFor="toggle" className="absolute cursor-pointer h-full w-full transition duration-500 bg-red-500 rounded-full shadow before:absolute before:h-8 before:w-8 before:rounded-full before:bg-white before:transition before:duration-500 peer-checked:bg-blue-400 peer-checked:before:translate-x-16"></label>
           </div>
-          <button className="h-8 w-8 rounded-full bg-lime-400" disabled>5</button>
+          <button className="h-8 w-8 rounded-full bg-blue-400" disabled>5</button>
         </div>
         <button
           onClick={() => setResistance({ ...initialResistance })}
-          className="rounded bg-red-600 px-2 hover:bg-red-500 focus:outline-none focus:ring focus:ring-red-300 active:bg-red-500"
+          className="rounded bg-red-600 hover:bg-red-500 focus:outline-none focus:ring focus:ring-red-300 active:bg-red-500 px-2"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -313,7 +318,7 @@ export default function Resistance() {
             viewBox="0 0 16 16"
           >
             <path
-              fill-rule="evenodd"
+              fillRule="evenodd"
               d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"
             />
             <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z" />
