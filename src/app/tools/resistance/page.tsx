@@ -184,12 +184,13 @@ function calculateResistance({
   return [totalResistance, min, max, unit];
 }
 
-function getColor(value: string) {
+function getColor(value = '', tolerance = '') {
   for (const item of colorCodes) {
-    console.log(item);
-    if (Object.values(item).includes(Number(value))) {
-      return bgColor(item.color);
-    }
+    const color = Object.values(item)
+    if (value && color.includes(Number(value))) return bgColor(item.color);
+    // temporary fix for issue #1
+    if (tolerance == '5') return bgColor('gold')
+    else if (tolerance && color.includes(Number(tolerance))) return bgColor(item.color);
   }
 }
 
@@ -214,7 +215,7 @@ function OutputRow({
   });
 
   return (
-    <div className="">
+    <div>
       <div
         className={`my-3 grid gap-4 border-t border-t-gray-300 p-3 ${
           bands && bandsGrid[bands]
@@ -222,37 +223,35 @@ function OutputRow({
       >
         <span>{""}</span>
         {firstDigit ? (
-          <span className={`${getColor(firstDigit)} text-center`}>
+          <span className={`${getColor(firstDigit, '')} text-center`}>
             {firstDigit}
           </span>
         ) : (
           <span>{""}</span>
         )}
         {secondDigit ? (
-          <span className={`${getColor(secondDigit)} text-center`}>
+          <span className={`${getColor(secondDigit, '')} text-center`}>
             {secondDigit}
           </span>
         ) : (
           <span>{""}</span>
         )}
-        {thirdDigit ? (
-          <span className={`${getColor(thirdDigit)} text-center`}>
+        {bands == 3 && thirdDigit ? (
+          <span className={`${getColor(thirdDigit,'')} text-center`}>
             {thirdDigit}
           </span>
-        ) : bands != 3 ? (
-          ""
         ) : (
-          <span>{""}</span>
+          ""
         )}
         {multiplier ? (
-          <span className={`${getColor(multiplier)} text-center`}>
+          <span className={`${getColor(multiplier, '')} text-center`}>
             &times;10<sup>{multiplier}</sup>
           </span>
         ) : (
           <span>{""}</span>
         )}
         {tolerance ? (
-          <span className={`${getColor(tolerance)} text-center`}>
+          <span className={`${getColor('', tolerance)} text-center`}>
             &plusmn;{tolerance}%
           </span>
         ) : (
