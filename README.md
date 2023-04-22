@@ -1,6 +1,6 @@
 This repo hosts several tools built while learning [Next.js](https://nextjs.org/), [TypeScript](https://www.typescriptlang.org/) and [Tailwind CSS](https://tailwindcss.com/).
 
-The tools are hosted with GitHub Pages and can be accessed here: https://josephkmaina.github.io/tools.
+The tools are hosted with GitHub Pages and can be accessed here: https://mainadotkim.github.io/portfolio/tools.
 
 Enjoy playing with the tools :stuck_out_tongue_winking_eye:
 
